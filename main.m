@@ -1,5 +1,5 @@
 clc
-% clear all
+clear all
 
 close all
 
@@ -29,7 +29,7 @@ pause
 
 
 %%
-s = serial('COM1');
+s = serial('COM3');
 set(s,'BaudRate',115200)
 set(s,'ByteOrder','bigEndian')
 get(s)
@@ -72,7 +72,7 @@ demand = [  toDemand(angleToShoulder(rad2deg(alpha(1)))),...
              0 0];
 
 while(i < N)
-
+   % i
    % command
    command = getMotorDemandCommand(demand_type, demand, speed_limit,current_limit);
    fwrite(s, command);
@@ -233,6 +233,8 @@ if (~isempty(data()))
 end
 
 %%
+
+% disp('Made it to the end')
 
 fclose(s)
 delete(s)
