@@ -12,24 +12,27 @@ close all
 % gamma = gamma(1:10:end);
 % beta = beta(1:10:end);
 
+%% Establish waypoints
 alpha = deg2rad([10, 20, 30, 40, 30, 20, 10]);
 gamma = deg2rad([10, 20, 30, 40, 30, 20, 10]);
 beta = deg2rad([10, 20, 30, 40, 30, 20, 10]);
 
-figure()
-plot(rad2deg(alpha), '-r.')
-hold on
-plot(rad2deg(gamma), '-g.')
-plot(rad2deg(beta),'-b.')
-legend('Shoulder', 'Slew', 'Elbow');
-ylabel('Degrees')
-title('Waypoints')
-pause
+% % figure()
+% % plot(rad2deg(alpha), '-r.')
+% % hold on
+% % plot(rad2deg(gamma), '-g.')
+% % plot(rad2deg(beta),'-b.')
+% % legend('Shoulder', 'Slew', 'Elbow');
+% % ylabel('Degrees')
+% % title('Waypoints')
+% % pause
 
 
 
-%%
-s = serial('COM3');
+%% Move arm along waypoints
+
+% set up connection to arm
+s = serial('COM4');
 set(s,'BaudRate',115200)
 set(s,'ByteOrder','bigEndian')
 get(s)
@@ -50,7 +53,7 @@ offset_position = 6;
 offset_current = 10;
 width = 9;
 
-
+% -- Limits of motors --
 speed_limit = 4095*ones(1,5);
 % speed_limit = 2047*ones(1,5);
 current_limit = 4095*ones(1,5);
@@ -65,16 +68,18 @@ tries = 0;
 
 t_cycle = 0.05;
 
+% set demand type to position for all non-jaw motors
 demand_type = [5 5 5 0 0];
+% set demand values for first waypoint
 demand = [  toDemand(angleToShoulder(rad2deg(alpha(1)))),...
              toDemand(angleToSlew(rad2deg(gamma(1)))),...
              toDemand(angleToElbow(rad2deg(beta(1)))),...
              0 0];
 
 while(i < N)
-   % i
    % command
    command = getMotorDemandCommand(demand_type, demand, speed_limit,current_limit);
+   % sends command to serial port
    fwrite(s, command);
 
    % wait
@@ -183,8 +188,9 @@ plot(1:N, position(1,:),'b')
 plot(1:N, position(1,:),'c')
 plot(1:N, position(1,:),'m')
 %}
-%%
 
+
+%% Plot of motor positions and currents.
 if (~isempty(data()))
      M = size(data,2);
      position = zeros(5,M);
