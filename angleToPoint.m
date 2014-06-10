@@ -5,21 +5,17 @@ function [x,y,z] = angleToPoint(slew,shoulder,elbow)
     % fixed distances <-- needs to be measured
     forarm = 8; % jaw to elbow
     midarm = 9; % elbow to shoulder
-    aftarm = 10; % shoulder to slew
+%     aftarm = 0; % shoulder to slew
     
-    % Fixed by nature of motor orientation
-    slewPos.z = 0;
-    
+   
     shoulderPos.r = midarm*cosd(shoulder);
     shoulderPos.z = midarm*sind(shoulder);
     
-    angle = elbow+shoulder-90;
-    elbowPos.r = sind(angle)*forarm;
-    elbowPos.z = -cosd(angle)*forarm;
+    angle = 180-elbow-shoulder;
+    elbowPos.r = forarm*cosd(angle);
+    elbowPos.z = -forarm*sind(angle);
     
-
-    
-    r.arm = aftarm + shoulderPos.r + elbowPos.r;
+    r.arm = shoulderPos.r + elbowPos.r;
     
     r.x = -r.arm*sind(slew);
     r.y = -r.arm*cosd(slew);
@@ -27,7 +23,7 @@ function [x,y,z] = angleToPoint(slew,shoulder,elbow)
     
     x = r.x;
     y = r.y;
-    z = slewPos.z + shoulderPos.z + elbowPos.z;
+    z = shoulderPos.z + elbowPos.z;
 end
     
     
