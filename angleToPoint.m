@@ -1,3 +1,4 @@
+function [varargout] = angleToPoint(slew,shoulder,elbow)
     % This functions takes angles (in degrees) and maps it to
     % a point in cartesian coordinates
 
