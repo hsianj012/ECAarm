@@ -1,4 +1,4 @@
-
+clear all
 % make each motor sweep from 0 - 90 degrees, one at a time.
 emptySet = zeros(1,10);
 zero2nine = linspace(0,90,10);
@@ -21,25 +21,21 @@ for i=1:l
 end
 
 % 3D plot of where the jaw has moved.
-figure (1)
+subplot(1,2,1)
 plot3(x,y,z)
+axis equal
+grid on
+title('jaw movement')
 
-% % Make animation of arm movement
-% for i=1:l
-%     [x(i),y(i),z(i)] = angleToPoint(alpha(i),gamma(i),beta(i));
-%     plot3(x(i),y(i),z(i))
-%     axis equal
-%     M(i) = getframe;
-% end
-% 
-% movie(M)
+
 
 for j=1:l
     [slew(j),shoulder(j),elbow(j)]=pointToAngle(x(j),y(j),z(j));
 end
-figure(2)
+subplot(1,2,2)
 index = 1:l;
-plot(index,slew,'b',index,shoulder,'r',index,elbow,'g')
+plot(index,slew,'b',index,shoulder,'r',index,elbow,'g', [0 30],[90 90],'m')
+title('Joint Angles')
 legend('slew','shoulder','elbow')
 
 
