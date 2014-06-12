@@ -10,9 +10,9 @@ get(s)
 
 disp('running fopen...')
 fopen(s);
-disp('check!')
+disp('success!')
 
-disp('running fread')
+disp('running fread...')
 fread(s,s.BytesAvailable,'uint8')
 disp('check!')
 
@@ -30,4 +30,6 @@ disp('command created')
 
 disp('sending command...')
 fwrite(s,command0);
+disp('sent!')
 
+fclose(s)
