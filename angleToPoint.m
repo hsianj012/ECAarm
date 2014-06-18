@@ -1,7 +1,8 @@
-function [varargout] = angleToPoint(slew,shoulder,elbow)
+function [varargout] = angleToPoint(shoulder, slew, elbow)
     % This functions takes angles (in degrees) and maps it to
     % a point in cartesian coordinates
 
+    
     %% Points of Interest
     % O = origin or slew pivot pt
     % A = shoulder pivot pt
