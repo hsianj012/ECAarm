@@ -13,9 +13,9 @@ close all
 % beta = beta(1:10:end);
 
 %% Establish waypoints
-alpha = deg2rad([10, 20, 30, 40, 30, 20, 10]);
-gamma = deg2rad([10, 20, 30, 40, 30, 20, 10]);
-beta = deg2rad([10, 20, 30, 40, 30, 20, 10]);
+alpha = deg2rad([10, 20, 30, 40, 30, 20, 10]); % shoulder
+gamma = deg2rad([10, 20, 30, 40, 30, 20, 10]); % Slew
+beta = deg2rad([10, 20, 30, 40, 30, 20, 10]); % Elbow
 
 % % figure()
 % % plot(rad2deg(alpha), '-r.')
@@ -32,7 +32,7 @@ beta = deg2rad([10, 20, 30, 40, 30, 20, 10]);
 %% Move arm along waypoints
 
 % set up connection to arm
-s = serial('COM4');
+s = serial('/dev/tty.usbserial-FTFK1K5Z'); % '\dev\tty.usb'
 set(s,'BaudRate',115200)
 set(s,'ByteOrder','bigEndian')
 get(s)
