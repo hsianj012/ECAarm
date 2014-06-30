@@ -22,7 +22,7 @@ function varargout = ArmControlGUI(varargin)
 
 % Edit the above text to modify the response to help ArmControlGUI
 
-% Last Modified by GUIDE v2.5 19-Jun-2014 14:51:58
+% Last Modified by GUIDE v2.5 24-Jun-2014 11:56:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -262,3 +262,159 @@ set(handles.status,'BackgroundColor',get(handles.statusBG,'BackgroundColor'));
 
 guidata(hObject, handles);
 % end
+
+
+% --- Executes on button press in posAngA1.
+function posAngA1_Callback(hObject, eventdata, handles)
+% hObject    handle to posAngA1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of posAngA1
+on = get(hObject,'Value');
+if on
+    handles.A1.posAng = on;
+else
+    handles.A1.posAng = 0;
+end
+guidata(hObject, handles);
+
+
+% --- Executes on button press in posPtA1.
+function posPtA1_Callback(hObject, eventdata, handles)
+% hObject    handle to posPtA1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of posPtA1
+on = get(hObject,'Value');
+if on
+    handles.A1.posPt = on;
+else
+    handles.A1.posPt = 0;
+end
+guidata(hObject, handles);
+
+% --- Executes on button press in currentA1.
+function currentA1_Callback(hObject, eventdata, handles)
+% hObject    handle to currentA1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of currentA1
+on = get(hObject,'Value');
+if on
+    handles.A1.current = on;
+else
+    handles.A1.current = 0;
+end
+guidata(hObject, handles);
+
+% --- Executes on button press in currentA2.
+function currentA2_Callback(hObject, eventdata, handles)
+% hObject    handle to currentA2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of currentA2
+on = get(hObject,'Value');
+if on
+    handles.A2.current = on;
+else
+    handles.A2.current = 0;
+end
+guidata(hObject, handles);
+
+% --- Executes on button press in posPtA2.
+function posPtA2_Callback(hObject, eventdata, handles)
+% hObject    handle to posPtA2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of posPtA2
+on = get(hObject,'Value');
+if on
+    handles.A2.posPt = on;
+else
+    handles.A2.posPt = 0;
+end
+guidata(hObject, handles);
+
+% --- Executes on button press in posAngA2.
+function posAngA2_Callback(hObject, eventdata, handles)
+% hObject    handle to posAngA2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of posAngA2
+on = get(hObject,'Value');
+if on
+    handles.A2.posAng = on;
+else
+    handles.A2.posAng = 0;
+end
+guidata(hObject, handles);
+
+% --- Executes on button press in speedA1.
+function speedA1_Callback(hObject, eventdata, handles)
+% hObject    handle to speedA1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of speedA1
+on = get(hObject,'Value');
+if on
+    handles.A1.speed = on;
+else
+    handles.A1.speed = 0;
+end
+guidata(hObject, handles);
+
+% --- Executes on button press in speedA2.
+function speedA2_Callback(hObject, eventdata, handles)
+% hObject    handle to speedA2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of speedA2
+on = get(hObject,'Value');
+if on
+    handles.A2.speed = on;
+else
+    handles.A2.speed = 0;
+end
+guidata(hObject, handles);
+
+% --- Executes on button press in plotBt.
+function plotBt_Callback(hObject, eventdata, handles)
+% hObject    handle to plotBt (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+colors = ['r','g','b','m'];
+
+axes(handles.axes1);
+cla
+hold on
+plotA1 = fieldnames(handles.A1);
+disp(plotA1)
+plotLegend = [];
+for iElement = 1:numel(plotA1)
+    if handles.A1.(plotA1{iElement})
+        plot(handles.cycles,handles.(plotA1{iElement}),colors(iElement))
+        plotLegend = [plotLegend,plotA1(iElement)];
+    end
+end
+legend(plotLegend)
+
+axes(handles.axes2);
+cla
+hold on
+plotA2 = fieldnames(handles.A2)
+plotLegend = [];
+for iElement = 1:numel(plotA2)
+    if handles.A2.(plotA2{iElement})
+        plot(handles.cycles,handles.(plotA2{iElement}),colors(iElement))
+        plotLegend = [plotLegend,plotA2(iElement)];
+    end
+end
+legend(plotLegend)
