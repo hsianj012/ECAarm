@@ -239,11 +239,21 @@ if get(handles.runBtn,'Value')
     set(handles.status,'BackgroundColor',get(handles.statusBG,'BackgroundColor'));
 end
 
-% run function
-inputType = handles.inputType;
-input = handles.input;
-demand_type = handles.demandType;
-[handles.position,handles.current] = runArm(inputType, input, demand_type);
+% % run function
+% inputType = handles.inputType;
+% input = handles.input;
+% demand_type = handles.demandType;
+% [handles.rawData] = runArm(inputType, input, demand_type);
+% [handles.posAng,handles.posPt, handles.speed,handles.current,handles.POI, handles.length]...
+%     = dataForPlot(handles.rawData);
+% handles.cycles = 1:handles.length;
+
+
+handles.posAng = rand(1,20);
+handles.posPt = rand(1,20);
+handles.speed = rand(1,20);
+handles.current = rand(1,20);
+handles.cycles = 1:20;
 
 % update status to 'complete' on GUI
 set(handles.status, 'String', 'COMPLETE');
