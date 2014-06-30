@@ -1,19 +1,26 @@
-function [position,current] = runArm(inputType, input1,input2,input3)
+function [data] = runArm(inputType, input, demand_type)
 %runArm communicates between MATLAB and the arm. 
-% inputType either 'angles' or 'point'
-% input1,input2,input3 are the corresponding angles (shoulder, slew, elbow) or cartesian point (x,y,z)
+% inputType either 'angles','point','rotate','open'
+% input is a vector with the corresponding angles (shoulder, slew, elbow),
+%       cartesian point (x,y,z)
 
 clc
-
 
 %% Establish destination
 switch lower(inputType)
     case {'angles','angle'}
-        alpha = input1;
-        gamma = input2;
-        beta = input3;
+        demand_raw(1) = angleToShoulder(input(1));
+        demand_raw(2) = angleToSlew(input(2));
+        demand_raw(3) = angleToSlew(input(3));
     case {'point','points'}
-        [alpha,gamma,beta] = pointToAngle(input1,input2,input3);
+        [shoulder,slew,elbow] = pointToAngle(input(1),input(2),input(3));
+        demand_raw(1) = angleToShoulder(shoulder);
+        demand_raw(2) = angleToSlew(slew);
+        demand_raw(3) = angleToSlew(elbow);    
+end
+
+if input(5)
+    demand_raw(5) = percentToJaw(input(5));
 end
 
 %% Move arm along waypoints
@@ -37,6 +44,7 @@ position = zeros(5, N);
 % elbow = beta = motor 3
 
 offset_position = 6;
+offset_speed = 8;
 offset_current = 10;
 width = 9;
 
@@ -56,17 +64,24 @@ tries = 0;
 t_cycle = 0.05;
 
 % set demand type to position for all non-jaw motors
-demand_type = [5 5 5 0 0];
+% demand_type = [5 5 5 0 0];
+
+
 % set demand values for first waypoint
-demand = [  toDemand(angleToShoulder(rad2deg(alpha(1)))),...
-             toDemand(angleToSlew(rad2deg(gamma(1)))),...
-             toDemand(angleToElbow(rad2deg(beta(1)))),...
-             0 0];
+for m=1:5
+    if demand_type(m) ~= 0
+        demand(m) = toDemand(demand_raw(m));
+    else
+        demand(m) = 0;
+    end
+end
 
 while(i < N)
-   % command
+    %---- possibly add stop button catch here---%
+    
+   % create command
    command = getMotorDemandCommand(demand_type, demand, speed_limit,current_limit);
-   % sends command to serial port
+   % send command to serial port
    fwrite(s, command);
 
    % wait
@@ -75,25 +90,32 @@ while(i < N)
    % 2 - sense
    if 0 < s.BytesAvailable
      data = [data, fread(s,s.BytesAvailable,'uint8')];
-     %t = [t, (toc-t0)];
+%      t = [t, (toc-t0)];
+     % record position from received packet
      for j=1:5
          position(j,i) = data(offset_position + (j-1)*width,i) + ...
              256*data(offset_position + (j-1)*width + 1, i);
+%          position(j,i) = 256*(offset_position + (j-1)*width + 1) + ...
+%              data(offset_position + (j-1)*width,i);
      end
 
+     % convert received position to angles
      alpha_m = shoulderToAngle(position(1,i));
      gamma_m = slewToAngle(position(2,i));
      beta_m = elbowToAngle(position(3,i));
 
+     % print out progress in command window
      disp(' ');
      disp(['      at: alpha=', num2str(alpha_m),...
            ' gamma=', num2str(gamma_m),...
            ' beta=', num2str(beta_m)]);
-     disp(['going to: alpha=', num2str(rad2deg(alpha(k))), ...
+     disp(['going to: alpha=', num2str(rad2deg(demand_raw(k))), ...
            ' gamma=', num2str(rad2deg(gamma(k))),...
            ' beta=', num2str(rad2deg(beta(k))), ' ']);
 
-     alpha_error = alpha(k) - deg2rad(alpha_m);
+     % check progress
+     % if within tolerance, stop that motor
+     alpha_error = demand_raw(k) - deg2rad(alpha_m);
      if( abs(alpha_error) < angle_tolerance)
          demand_type(1) = 0;
      end
@@ -114,7 +136,7 @@ while(i < N)
         demand_type = [5 5 5 0 0];
         k = k + 1;
 
-        if (k>size(alpha,2))
+        if (k>size(demand_raw,2))
             disp('Completed.')
             break;
         end
@@ -175,55 +197,6 @@ plot(1:N, position(1,:),'b')
 plot(1:N, position(1,:),'c')
 plot(1:N, position(1,:),'m')
 %}
-
-
-%% Plot of motor positions and currents.
-if (~isempty(data()))
-     M = size(data,2);
-     position = zeros(5,M);
-     current = zeros(5,M);
-
-     for i=1:5
-       for j =1:M
-         position(i,j) = data(offset_position + (i-1)*width,j) + ...
-             256*data(offset_position + (i-1)*width + 1, j);
-         current(i,j) = 256*data(offset_current + (i-1)*width,j) + ...
-              data(offset_current + (i-1)*width + 1, j);
-         %position(i,j) = data(offset_position + (i-1)*width + 1, j);
-         %current(i) = 256*command(offset_current + (i-1)*width) + command(offset_current + (i-1)*width + 1);
-       end
-     end
-
-%      %close all;
-% 
-%      figure();
-%      plot(1:M, shoulderToAngle(position(1,:)),'-r.')
-%      hold on
-%      plot(1:M, slewToAngle(position(2,:)),'-g.')
-%      plot(1:M, elbowToAngle(position(3,:)),'-b.')
-%      %plot(1:M, (1/scale(4))*position(4,:),'-c.')
-%      %plot(1:M, (1/scale(5))*position(5,:),'-m.')
-% 
-%      title('Joint positions')
-%      xlabel('Cycle')
-%      ylabel('Position')
-% 
-%      legend('Shoulder', 'Slew', 'Elbow')% 'Jaw - Rotate', 'Jaw - Grip');
-% 
-%      figure();
-%      plot(1:M, current(1,:),'-r.')
-%      hold on
-%      plot(1:M, current(2,:),'-g.')
-%      plot(1:M, current(3,:),'-b.')
-%      plot(1:M, current(4,:),'-c.')
-%      plot(1:M, current(5,:),'-m.')
-% 
-%      title('Joint current')
-%      xlabel('Cycle')
-%      ylabel('Current')
-% 
-%      legend('Shoulder', 'Slew', 'Elbow', 'Jaw - Rotate', 'Jaw - Grip');
-end
 
 %%
 
