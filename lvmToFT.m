@@ -1,15 +1,22 @@
-function [Fx, Fy, Fz, Tx, Ty, Tz] = lvmToFT(filename)
+function [Fx, Fy, Fz, Tx, Ty, Tz] = lvmToFT(filename,header,numFiles)
 %lvmToFT this function takes in labview lvm file formatted as a (two-column csv)
 % and returns the force and torque data
 
+% numFiles can be 'single' or 'series'
 
 %% Initialize variables.
 delimiter = ',';
-% % If file has headers
-startRow = 23;
-% % if no headers
-% startRow = 1; 
-endRow = inf;
+
+switch header
+    case {true, 'T'}
+        % % If file has headers
+        startRow = 23;
+    case {'false', 'F'}
+        % % if no headers
+        startRow = 1; 
+end
+
+endRow = 100; % set endRow = inf for unknown number of files
 
 %% Format string for each line of text:
 %   column2: double (%f)
@@ -51,6 +58,8 @@ Tx = zeros(1,dataLength);
 Ty = zeros(1,dataLength);
 Tz = zeros(1,dataLength);
 
+
+
 % fill with data from file
 for i = 1:(dataLength-1)
     Fx(i)=FTData(6*(i-1)+1);
@@ -61,11 +70,16 @@ for i = 1:(dataLength-1)
     Tz(i)=FTData(6*(i-1)+6);
 end
 
-%% Comment this section out if you want each pt instead of average
-% Return average force/torques
-Fx = mean(Fx);
-Fy = mean(Fy);
-Fz = mean(Fz);
-Tx = mean(Tx);
-Ty = mean(Ty);
-Tz = mean(Tz);
+switch numFiles
+    case 'single'
+        return
+    case 'series'
+        %% Comment this section out if you want each pt instead of average
+        % Return average force/torques
+        Fx = mean(Fx);
+        Fy = mean(Fy);
+        Fz = mean(Fz);
+        Tx = mean(Tx);
+        Ty = mean(Ty);
+        Tz = mean(Tz);
+end
