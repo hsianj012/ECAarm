@@ -1,7 +1,6 @@
 function [Fx, Fy, Fz, Tx, Ty, Tz] = lvmToFT(filename,header,numFiles)
 %lvmToFT this function takes in labview lvm file formatted as a (two-column csv)
 % and returns the force and torque data
-
 % numFiles can be 'single' or 'series'
 
 %% Initialize variables.
@@ -11,12 +10,13 @@ switch header
     case {true, 'T'}
         % % If file has headers
         startRow = 23;
-    case {'false', 'F'}
+    case {false, 'F'}
         % % if no headers
         startRow = 1; 
 end
 
-endRow = 100; % set endRow = inf for unknown number of files
+% Set to 'inf' to read until end of file regardless of # of lines
+endRow = inf; 
 
 %% Format string for each line of text:
 %   column2: double (%f)
@@ -74,7 +74,7 @@ switch numFiles
     case 'single'
         return
     case 'series'
-        %% Comment this section out if you want each pt instead of average
+        %% Comment this section out if you want each pt instead of average values
         % Return average force/torques
         Fx = mean(Fx);
         Fy = mean(Fy);
