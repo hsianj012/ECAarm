@@ -59,7 +59,19 @@ handles.input = zeros(1,5);
 % Update handles structure
 guidata(hObject, handles);
 
+% % Initiate axes plot handles - necessary so that colors are consistent
+% for both plots
+handles.A1.posAng = 0;
+handles.A1.posPt = 0;
+handles.A1.speed = 0;
+handles.A1.current = 0;
+handles.A2.posAng = 0;
+handles.A2.posPt = 0;
+handles.A2.speed = 0;
+handles.A2.current = 0;
+
 set(handles.inputTypePanel, 'SelectedObject', handles.anglesBtn);
+guidata(hObject, handles);
 % initialize_gui(hObject, handles, false);
 % UIWAIT makes ArmControlGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -392,11 +404,11 @@ function plotBt_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 colors = ['r','g','b','m'];
 
+% checks/plots desired plots on axes 1(left)
 axes(handles.axes1);
 cla
 hold on
 plotA1 = fieldnames(handles.A1);
-disp(plotA1)
 plotLegend = [];
 for iElement = 1:numel(plotA1)
     if handles.A1.(plotA1{iElement})
@@ -406,10 +418,11 @@ for iElement = 1:numel(plotA1)
 end
 legend(plotLegend)
 
+% checks/plots desired plots on axes 2(right)
 axes(handles.axes2);
 cla
 hold on
-plotA2 = fieldnames(handles.A2)
+plotA2 = fieldnames(handles.A2);
 plotLegend = [];
 for iElement = 1:numel(plotA2)
     if handles.A2.(plotA2{iElement})
