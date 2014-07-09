@@ -32,7 +32,7 @@ beta = deg2rad([10, 20, 30, 40, 30, 20, 10]); % Elbow
 %% Move arm along waypoints
 
 % set up connection to arm
-s = serial('/dev/tty.usbserial-FTFK1K5Z'); % '\dev\tty.usb'
+s = serial('COM1'); % '\dev\tty.usb'
 set(s,'BaudRate',115200)
 set(s,'ByteOrder','bigEndian')
 get(s)

@@ -3,7 +3,7 @@ clear all
 
 close all
 
-s = serial('/dev/tty.usbserial-FTFK1K5Z');
+s = serial('COM1');
 set(s,'BaudRate',115200)
 set(s,'ByteOrder','bigEndian')
 set(s,'inputBufferSize',51)
@@ -34,6 +34,7 @@ while(s.BytesAvailable == 0)
 
 end
 
+data=[];
 data = [data, fread(s,s.BytesAvailable,'uint8')]
 
 
