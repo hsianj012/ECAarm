@@ -241,7 +241,7 @@ function toPoint_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 [handles.pos.x,handles.pos.y,handles.pos.z,handles.POI] = ...
-    angleToPoint(handles.angles.slew,handles.angles.shoulder,handles.angles.elbow);
+    angleToPoint(handles.angles.shoulder,handles.angles.slew,handles.angles.elbow);
 set(handles.xpos,'String',handles.pos.x);
 set(handles.ypos,'String',handles.pos.y);
 set(handles.zpos,'String',handles.pos.z);
