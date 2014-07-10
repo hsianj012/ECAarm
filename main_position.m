@@ -200,8 +200,8 @@ if (~isempty(data()))
        for j =1:M
          position(i,j) = data(offset_position + (i-1)*width,j) + ...
              256*data(offset_position + (i-1)*width + 1, j);
-         current(i,j) = 256*data(offset_current + (i-1)*width,j) + ...
-              data(offset_current + (i-1)*width + 1, j);
+         current(i,j) = data(offset_current + (i-1)*width,j) + ...
+              256*data(offset_current + (i-1)*width + 1, j);
          %position(i,j) = data(offset_position + (i-1)*width + 1, j);
          %current(i) = 256*command(offset_current + (i-1)*width) + command(offset_current + (i-1)*width + 1);
        end
