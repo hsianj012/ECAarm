@@ -2,7 +2,8 @@ function [ angle ] = slewToAngle( slew_position )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
-    k = 588.14;
+%     k = 588.14;
+    k = 546.133;
    
     angle = slew_position/k;
 %    

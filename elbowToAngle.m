@@ -2,7 +2,8 @@ function [ angle ] = elbowToAngle( elbow_position )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
-    k = 569.88;
+%     k = 569.88;
+    k = 504.123;
    
     angle = elbow_position/k;
    
