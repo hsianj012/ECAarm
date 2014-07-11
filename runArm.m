@@ -1,4 +1,5 @@
 function [data] = runArm(inputType, input, demand_type)
+%  [data] = runArm('angles',[90 0 0 0 0],[5 0 0 0 0]);
 %runArm communicates between MATLAB and the arm. 
 % inputType either 'angles','point','rotate','open'
 % input is a vector with the corresponding angles (shoulder, slew, elbow),
@@ -11,22 +12,23 @@ switch lower(inputType)
     case {'angles','angle'}
         demand_raw(1) = angleToShoulder(input(1));
         demand_raw(2) = angleToSlew(input(2));
-        demand_raw(3) = angleToSlew(input(3));
+        demand_raw(3) = angleToElbow(input(3));
     case {'point','points'}
         [shoulder,slew,elbow] = pointToAngle(input(1),input(2),input(3));
         demand_raw(1) = angleToShoulder(shoulder);
         demand_raw(2) = angleToSlew(slew);
-        demand_raw(3) = angleToSlew(elbow);    
+        demand_raw(3) = angleToElbow(elbow);    
 end
 
 if input(5)
     demand_raw(5) = percentToJaw(input(5));
 end
 
+
 %% Move arm along waypoints
 
 % set up connection to arm
-s = serial('COM1'); % '\dev\tty.usb'
+s = serial('COM2'); % '\dev\tty.usb'
 set(s,'BaudRate',115200)
 set(s,'ByteOrder','bigEndian')
 get(s)
@@ -58,6 +60,7 @@ current_limit = 4095*ones(1,5);
 i = 1;
 positioning_tolerance = 300;
 angle_tolerance = deg2rad(0.5);
+% angle_tolerance = 0.5;
 k = 1;
 tries = 0;
 
@@ -75,6 +78,8 @@ for m=1:5
         demand(m) = 0;
     end
 end
+
+% demand
 
 while(i < N)
     %---- possibly add stop button catch here---%
@@ -109,23 +114,23 @@ while(i < N)
      disp(['      at: alpha=', num2str(alpha_m),...
            ' gamma=', num2str(gamma_m),...
            ' beta=', num2str(beta_m)]);
-     disp(['going to: alpha=', num2str(rad2deg(demand_raw(k))), ...
-           ' gamma=', num2str(rad2deg(gamma(k))),...
-           ' beta=', num2str(rad2deg(beta(k))), ' ']);
+     disp(['going to: alpha=', num2str(shoulderToAngle(demand_raw(1))), ...
+           ' gamma=', num2str(slewToAngle(demand_raw(2))),...
+           ' beta=', num2str(elbowToAngle(demand_raw(3))), ' ']);
 
      % check progress
      % if within tolerance, stop that motor
-     alpha_error = demand_raw(k) - deg2rad(alpha_m);
+     alpha_error = deg2rad(shoulderToAngle(demand_raw(1))) - deg2rad(alpha_m);
      if( abs(alpha_error) < angle_tolerance)
          demand_type(1) = 0;
      end
 
-     gamma_error = gamma(k) - deg2rad(gamma_m);
+     gamma_error = deg2rad(slewToAngle(demand_raw(2))) - deg2rad(gamma_m);
      if( abs(gamma_error) < angle_tolerance)
          demand_type(2) = 0;
      end
 
-     beta_error = beta(k) - deg2rad(beta_m);
+     beta_error = deg2rad(elbowToAngle(demand_raw(3))) - deg2rad(beta_m);
      if( abs(beta_error) < angle_tolerance)
          demand_type(3) = 0;
      end
