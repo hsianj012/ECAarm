@@ -71,6 +71,7 @@ handles.A2.speed = 0;
 handles.A2.current = 0;
 
 set(handles.inputTypePanel, 'SelectedObject', handles.anglesBtn);
+handles.inputType = 'angles';
 guidata(hObject, handles);
 % initialize_gui(hObject, handles, false);
 % UIWAIT makes ArmControlGUI wait for user response (see UIRESUME)
