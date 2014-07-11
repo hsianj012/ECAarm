@@ -257,9 +257,9 @@ inputType = handles.inputType;
 input = handles.input;
 demand_type = handles.demandType;
 [handles.rawData] = runArm(inputType, input, demand_type);
-[handles.posAng,handles.posPt, handles.speed,handles.current,handles.POI, handles.length]...
-    = dataForPlot(handles.rawData);
-handles.cycles = 1:handles.length;
+% [handles.posAng,handles.posPt, handles.speed,handles.current,handles.POI, handles.length]...
+%     = dataForPlot(handles.rawData);
+% handles.cycles = 1:handles.length;
 
 
 % handles.posAng = rand(1,20);
@@ -403,6 +403,11 @@ function plotBt_Callback(hObject, eventdata, handles)
 % hObject    handle to plotBt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+[handles.posAng, handles.posPt, handles.speed, handles.current, handles.POI, handles.length]...
+    = dataForPlot(handles.rawData);
+handles.cycles = 1:handles.length;
+
 colors = ['r','g','b','m'];
 
 % checks/plots desired plots on axes 1(left)
