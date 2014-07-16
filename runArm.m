@@ -7,6 +7,7 @@ function [data] = runArm(inputType, input, demand_type)
 
 clc
 
+demand_raw = zeros(1,5);
 %% Establish destination
 switch lower(inputType)
     case {'angles','angle'}
@@ -60,6 +61,7 @@ current_limit = 4095*ones(1,5);
 i = 1;
 positioning_tolerance = 300;
 angle_tolerance = deg2rad(0.5);
+percent_tolerance = 5;
 % angle_tolerance = 0.5;
 k = 1;
 tries = 0;
@@ -108,17 +110,27 @@ while(i < N)
      alpha_m = shoulderToAngle(position(1,i));
      gamma_m = slewToAngle(position(2,i));
      beta_m = elbowToAngle(position(3,i));
-
+%      delta_m = wristToAngle(position(4,i)); % To be written
+     epsilon_m = jawToPercent(position(5,i));
+     
      % print out progress in command window
      disp(' ');
      disp(['      at: alpha=', num2str(alpha_m),...
            ' gamma=', num2str(gamma_m),...
-           ' beta=', num2str(beta_m)]);
+           ' beta=', num2str(beta_m),...
+           ' epsilon=', num2str(epsilon_m)]);
+%            ' delta=', num2str(delta_m),...
+%            ' epsilon=', num2str(epsilon_m)]);
      disp(['going to: alpha=', num2str(shoulderToAngle(demand_raw(1))), ...
            ' gamma=', num2str(slewToAngle(demand_raw(2))),...
-           ' beta=', num2str(elbowToAngle(demand_raw(3))), ' ']);
+           ' beta=', num2str(elbowToAngle(demand_raw(3))),...
+           ' epsilon=', num2str(jawToPercent(demand_raw(5))),' ']);
+%            ' delta=', num2str(wristToAngle(demand_raw(4))),...
+%            ' epsilon=', num2str(jawToPercent(demand_raw(5))),' ']);
 
      % check progress
+     
+     
      % if within tolerance, stop that motor
      alpha_error = deg2rad(shoulderToAngle(demand_raw(1))) - deg2rad(alpha_m);
      if( abs(alpha_error) < angle_tolerance)
@@ -135,10 +147,21 @@ while(i < N)
          demand_type(3) = 0;
      end
 
+% %
+%      delta_error = wristToAngle(demand_raw(4)) - delta_m;
+%      if( abs(delta_error) < angle_tolerance)
+%          demand_type(4) = 0;
+%      end
+
+     epsilon_error = jawToPercent(demand_raw(5)) - epsilon_m;
+     if( abs(epsilon_error) < percent_tolerance)
+         demand_type(5) = 0;
+     end
+
      if (min(demand_type == zeros(1,5)) == 1 )
         % we've arrived, get the next waypoint.
-        demand = [ 0 0 0 0 0];
-        demand_type = [5 5 5 0 0];
+        demand = [0 0 0 0 0];
+%         demand_type = [5 5 5 0 5];
         k = k + 1;
 
         if (k>size(demand_raw,2))

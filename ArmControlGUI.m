@@ -22,7 +22,7 @@ function varargout = ArmControlGUI(varargin)
 
 % Edit the above text to modify the response to help ArmControlGUI
 
-% Last Modified by GUIDE v2.5 24-Jun-2014 11:56:13
+% Last Modified by GUIDE v2.5 16-Jul-2014 15:49:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -237,13 +237,13 @@ function runBtn_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % set demand type to position for shoulder, slew, and elbow
-handles.demandType = [5 5 5 0 0];
+handles.demandType = [5 5 5 0 5];
 
-% check for jaw open/close command and set demand type to position if
-% present
-if handles.input(5)
-    handles.demandType(5) = 5;
-end
+% % check for jaw open/close command and set demand type to position if
+% % present
+% if handles.input(5)
+%     handles.demandType(5) = 5;
+% end
 
 % update status to 'running' on GUI
 if get(handles.runBtn,'Value')
@@ -257,10 +257,6 @@ inputType = handles.inputType;
 input = handles.input;
 demand_type = handles.demandType;
 [handles.rawData] = runArm(inputType, input, demand_type);
-% [handles.posAng,handles.posPt, handles.speed,handles.current,handles.POI, handles.length]...
-%     = dataForPlot(handles.rawData);
-% handles.cycles = 1:handles.length;
-
 
 % handles.posAng = rand(1,20);
 % handles.posPt = rand(1,20);
@@ -404,7 +400,7 @@ function plotBt_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[handles.posAng, handles.posPt, handles.speed, handles.current, handles.POI, handles.length]...
+[handles.posAng, handles.posPt, handles.speed, handles.current, handles.length]...
     = dataForPlot(handles.rawData);
 handles.cycles = 1:handles.length;
 
