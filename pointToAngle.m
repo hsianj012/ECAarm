@@ -53,19 +53,19 @@ function [shoulder, slew, elbow,POI] = pointToAngle(x,y,z)
     MINelbow = 0;
     MAXelbow = 130;
 
-    if (round(slew) < MINslew || slew > MAXslew)
-        slew
-        error('Point is out of arm range!')
-    end
-
-    if (round(shoulder) < MINshould || round(shoulder) > MAXshould)
-        MAXshould-shoulder
-        error('Point is out of arm range!')
-    end
-    if (round(elbow) < MINelbow || elbow > MAXelbow)
-        elbow
-        error('Point is out of arm range!')
-    end
+%     if (round(slew) < MINslew || slew > MAXslew)
+%         slew
+%         error('Point is out of arm range!')
+%     end
+% 
+%     if (round(shoulder) < MINshould || round(shoulder) > MAXshould)
+%         MAXshould-shoulder
+%         error('Point is out of arm range!')
+%     end
+%     if (round(elbow) < MINelbow || elbow > MAXelbow)
+%         elbow
+%         error('Point is out of arm range!')
+%     end
     
     %% get POI
     [x,y,z,POI] = angleToPoint(shoulder, slew, elbow);
