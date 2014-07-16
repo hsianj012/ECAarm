@@ -17,7 +17,7 @@ function message = getMotorDemandMessage(demand_type, demand, speed_limit, curre
     % demand range is 0-100
     demand = max(0, min(100, demand));
     % convert to 16-bit
-    demand = dec2hex(int16(max(0,(demand*(2^16/100)-1))));
+    demand = dec2hex(uint16(max(0,(demand*(2^16/100)-1))));
     message(2) = demand_type;
     switch size(demand,2)
         case (1)
