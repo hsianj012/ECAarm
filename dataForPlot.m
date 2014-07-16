@@ -1,4 +1,4 @@
-function [posAng, posPt, speed, current, POI,length] = dataForPlot(data)
+function [posAng, posPt, speed, current, length] = dataForPlot(data)
 %% Plot of motor positions and currents.
 if (~isempty(data()))
      M = size(data,2);
@@ -30,7 +30,9 @@ if (~isempty(data()))
 %      posAng.wrist = 
      posAng.jaw = jawToPercent(position(5,:));
      
-     [posPt.x,posPt.y,posPt.z,POI]=angleToPoint(posAng.shoulder, posAng.slew, posAng.elbow);
+     for k = 1:M
+         [posPt.x(k),posPt.y(k),posPt.z(k)]=angleToPoint(posAng.shoulder(k), posAng.slew(k), posAng.elbow(k));
+     end
      
 %      hold on
 %      plot(1:M, slewToAngle(position(2,:)),'-g.')
