@@ -7,7 +7,7 @@ function [ newWaypoints ] = makeWaypoint( waypoints )
 max = [90 120 130 2000 100]'; % [shoulder, slew, elbow, wrist, jaw]
 
 % initial position of arm
-initPos = getInitPosition; 
+initPos = getInitPosition;
 
 % get number of waypoints
 M = size(waypoints,2);
@@ -27,7 +27,6 @@ for i = 1:M
     diff = abs(start-desired);
     valid = diff < .5*max;
     if valid
-        disp('valid')
         newWaypoints(1:5,j) = desired;
         j=j+1;
     else
