@@ -1,25 +1,25 @@
-function [data] = runArm(inputType, input, demand_type)
+function [data] = runArm(input, demand_type)
 %  [data] = runArm('angles',[90 0 0 0 0],[5 0 0 0 0]);
 %runArm communicates between MATLAB and the arm. 
 % inputType either 'angles','point','rotate','open'
 % input is a vector with the corresponding angles (shoulder, slew, elbow),
 %       cartesian point (x,y,z)
 
-clc
+% clc
 
 demand_raw = zeros(1,5);
 %% Establish destination
-switch lower(inputType)
-    case {'angles','angle'}
+% switch lower(inputType)
+%     case {'angles','angle'}
         demand_raw(1) = angleToShoulder(input(1));
         demand_raw(2) = angleToSlew(input(2));
         demand_raw(3) = angleToElbow(input(3));
-    case {'point','points'}
-        [shoulder,slew,elbow] = pointToAngle(input(1),input(2),input(3));
-        demand_raw(1) = angleToShoulder(shoulder);
-        demand_raw(2) = angleToSlew(slew);
-        demand_raw(3) = angleToElbow(elbow);    
-end
+%     case {'point','points'}
+%         [shoulder,slew,elbow] = pointToAngle(input(1),input(2),input(3));
+%         demand_raw(1) = angleToShoulder(shoulder);
+%         demand_raw(2) = angleToSlew(slew);
+%         demand_raw(3) = angleToElbow(elbow);    
+% end
 
 if input(5)
     demand_raw(5) = percentToJaw(input(5));
@@ -61,7 +61,7 @@ current_limit = 4095*ones(1,5);
 i = 1;
 positioning_tolerance = 300;
 angle_tolerance = deg2rad(0.5);
-percent_tolerance = 5;
+percent_tolerance = 3;
 % angle_tolerance = 0.5;
 k = 1;
 tries = 0;
