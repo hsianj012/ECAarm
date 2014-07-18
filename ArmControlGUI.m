@@ -253,10 +253,17 @@ if get(handles.runBtn,'Value')
 end
 
 % run function
-inputType = handles.inputType;
+%%%
 input = handles.input;
+if strcmp(handles.input,'point')
+	[input(1),input(2),input(3)] = pointToAngle(handles.input(1),handles.input(2),handles.input(3));
+end
+
+%%%
+% inputType = handles.inputType;
+% input = handles.input;
 demand_type = handles.demandType;
-[handles.rawData] = runArm(inputType, input, demand_type);
+[handles.rawData] = runArm(input, demand_type);
 
 % handles.posAng = rand(1,20);
 % handles.posPt = rand(1,20);
