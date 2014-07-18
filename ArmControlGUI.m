@@ -255,21 +255,13 @@ end
 % run function
 %%%
 input = handles.input;
-if strcmp(handles.input,'point')
+if strcmp(handles.inputType,'point')
 	[input(1),input(2),input(3)] = pointToAngle(handles.input(1),handles.input(2),handles.input(3));
 end
-
 %%%
-% inputType = handles.inputType;
-% input = handles.input;
+
 demand_type = handles.demandType;
 [handles.rawData] = runArm(input, demand_type);
-
-% handles.posAng = rand(1,20);
-% handles.posPt = rand(1,20);
-% handles.speed = rand(1,20);
-% handles.current = rand(1,20);
-% handles.cycles = 1:20;
 
 % update status to 'complete' on GUI
 set(handles.status, 'String', 'COMPLETE');
@@ -406,12 +398,13 @@ function plotBt_Callback(hObject, eventdata, handles)
 % hObject    handle to plotBt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+f = figure()
 [handles.posAng, handles.posPt, handles.speed, handles.current, handles.length]...
     = dataForPlot(handles.rawData);
 handles.cycles = 1:handles.length;
 
 colors = ['r','g','b','m'];
+
 
 % checks/plots desired plots on axes 1(left)
 axes(handles.axes1);
