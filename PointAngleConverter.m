@@ -162,7 +162,7 @@ function toAngle_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 [handles.angles.shoulder,handles.angles.slew,handles.angles.elbow,handles.POI] = ...
-    pointToAngle(handles.pos.x,handles.pos.y,handles.pos.z)
+    pointToAngle(handles.pos.x,handles.pos.y,handles.pos.z);
 set(handles.slewAngle, 'String',handles.angles.slew);
 set(handles.shoulderAngle, 'String', handles.angles.shoulder);
 set(handles.elbowAngle, 'String', handles.angles.elbow);
