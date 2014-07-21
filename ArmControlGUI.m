@@ -54,7 +54,7 @@ function ArmControlGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for ArmControlGUI
 handles.output = hObject;
-handles.input = zeros(1,5);
+% handles.input = zeros(1,5);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -117,13 +117,13 @@ function textInput1_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of textInput1 as a double
 
 % store value of x or shoulder angle as input(1)
-input1 = str2double(get(hObject, 'String'));
+input1 = eval(get(hObject, 'String'));
 if isnan(input1)
     set(hObject, 'String', 0);
     errordlg('Input must be a number','Error');
 end
 
-handles.input(1)= input1;
+handles.input(1,:)= input1;
 guidata(hObject,handles)
 
 % --- Executes during object creation, after setting all properties.
@@ -149,13 +149,13 @@ function textInput2_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of textInput2 as a double
 
 % store value of y or slew angle as input(2)
-input2 = str2double(get(hObject, 'String'));
+input2 = eval(get(hObject, 'String'));
 if isnan(input2)
     set(hObject, 'String', 0);
     errordlg('Input must be a number','Error');
 end
 
-handles.input(2) = input2;
+handles.input(2,:) = input2;
 guidata(hObject,handles)
 
 % --- Executes during object creation, after setting all properties.
@@ -179,13 +179,13 @@ function textInput3_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of textInput3 as a double
 
 % store value of z or elbow angle as input(3)
-input3 = str2double(get(hObject, 'String'));
+input3 = eval(get(hObject, 'String'));
 if isnan(input3)
     set(hObject, 'String', 0);
     errordlg('Input must be a number','Error');
 end
 
-handles.input(3)= input3;
+handles.input(3,:)= input3;
 guidata(hObject,handles)
 
 % --- Executes during object creation, after setting all properties.
@@ -212,7 +212,7 @@ function jawSlider_Callback(hObject, eventdata, handles)
 
 % Store jaw open percentage
 jawValue = get(hObject,'Value');
-handles.input(5) = jawValue;
+% handles.input(5) = jawValue;
 
 % display current position of slider on GUI
 set(handles.jawVal,'String',num2str(jawValue));
@@ -256,10 +256,13 @@ end
 %%%
 input = handles.input;
 if strcmp(handles.inputType,'point')
-	[input(1),input(2),input(3)] = pointToAngle(handles.input(1),handles.input(2),handles.input(3));
+    for i = 1:size(input,2)
+        [input(1,i),input(2,i),input(3,i)] = pointToAngle(handles.input(1,i),handles.input(2,i),handles.input(3,i));
+    end
 end
 %%%
-
+disp(handles.input)
+disp(input)
 demand_type = handles.demandType;
 [handles.rawData] = runArm(input, demand_type);
 

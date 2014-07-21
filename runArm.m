@@ -1,30 +1,17 @@
 function [data] = runArm(input, demand_type)
-%  [data] = runArm('angles',[90 0 0 0 0],[5 0 0 0 0]);
 %runArm communicates between MATLAB and the arm. 
-% inputType either 'angles','point','rotate','open'
-% input is a vector with the corresponding angles (shoulder, slew, elbow),
-%       cartesian point (x,y,z)
+% input is a 5xN matrix of waypoint
 
 % clc
 
-demand_raw = zeros(1,5);
+demand_raw = zeros(5,size(input,2));
 %% Establish destination
-% switch lower(inputType)
-%     case {'angles','angle'}
-        demand_raw(1) = angleToShoulder(input(1));
-        demand_raw(2) = angleToSlew(input(2));
-        demand_raw(3) = angleToElbow(input(3));
-%     case {'point','points'}
-%         [shoulder,slew,elbow] = pointToAngle(input(1),input(2),input(3));
-%         demand_raw(1) = angleToShoulder(shoulder);
-%         demand_raw(2) = angleToSlew(slew);
-%         demand_raw(3) = angleToElbow(elbow);    
-% end
-
-if input(5)
-    demand_raw(5) = percentToJaw(input(5));
+for j = 1:size(input,2)
+    demand_raw(1,j) = angleToShoulder(input(1,j));
+    demand_raw(2,j) = angleToSlew(input(2,j));
+    demand_raw(3,j) = angleToElbow(input(3,j));
+%     demand_raw(5,j) = percentToJaw(input(5,j));
 end
-
 
 %% Move arm along waypoints
 
@@ -61,7 +48,7 @@ current_limit = 4095*ones(1,5);
 i = 1;
 positioning_tolerance = 300;
 angle_tolerance = deg2rad(0.5);
-percent_tolerance = 3;
+percent_tolerance = 4;
 % angle_tolerance = 0.5;
 k = 1;
 tries = 0;
@@ -71,14 +58,10 @@ t_cycle = 0.05;
 % set demand type to position for all non-jaw motors
 % demand_type = [5 5 5 0 0];
 
-
+demand = zeros(1,5);
 % set demand values for first waypoint
 for m=1:5
-    if demand_type(m) ~= 0
-        demand(m) = toDemand(demand_raw(m));
-    else
-        demand(m) = 0;
-    end
+    demand(m) = toDemand(demand_raw(m,k));
 end
 
 % demand
@@ -111,20 +94,24 @@ while(i < N)
      gamma_m = slewToAngle(position(2,i));
      beta_m = elbowToAngle(position(3,i));
 %      delta_m = wristToAngle(position(4,i)); % To be written
-     epsilon_m = jawToPercent(position(5,i));
+%      epsilon_m = jawToPercent(position(5,i));
      
      % print out progress in command window
      disp(' ');
      disp(['      at: alpha=', num2str(alpha_m),...
            ' gamma=', num2str(gamma_m),...
-           ' beta=', num2str(beta_m),...
-           ' epsilon=', num2str(epsilon_m)]);
+           ' beta=', num2str(beta_m)]);%,...
+%            ' epsilon=', num2str(epsilon_m)]);
 %            ' delta=', num2str(delta_m),...
 %            ' epsilon=', num2str(epsilon_m)]);
-     disp(['going to: alpha=', num2str(shoulderToAngle(demand_raw(1))), ...
-           ' gamma=', num2str(slewToAngle(demand_raw(2))),...
-           ' beta=', num2str(elbowToAngle(demand_raw(3))),...
-           ' epsilon=', num2str(jawToPercent(demand_raw(5))),' ']);
+%      disp(['going to: alpha=', num2str(shoulderToAngle(demand_raw(1,k))), ...
+%            ' gamma=', num2str(slewToAngle(demand_raw(2,k))),...
+%            ' beta=', num2str(elbowToAngle(demand_raw(3,k))),...
+%            ' epsilon=', num2str(jawToPercent(demand_raw(5,k))),' ']);
+     disp(['going to: alpha=', num2str(input(1,k)), ...
+           ' gamma=', num2str(input(2,k)),...
+           ' beta=', num2str(input(3,k)),' ']);%,...
+%            ' epsilon=', num2str(input(5,k)),' ']);
 %            ' delta=', num2str(wristToAngle(demand_raw(4))),...
 %            ' epsilon=', num2str(jawToPercent(demand_raw(5))),' ']);
 
@@ -132,17 +119,17 @@ while(i < N)
      
      
      % if within tolerance, stop that motor
-     alpha_error = deg2rad(shoulderToAngle(demand_raw(1))) - deg2rad(alpha_m);
+     alpha_error = deg2rad(shoulderToAngle(demand_raw(1,k))) - deg2rad(alpha_m);
      if( abs(alpha_error) < angle_tolerance)
          demand_type(1) = 0;
      end
 
-     gamma_error = deg2rad(slewToAngle(demand_raw(2))) - deg2rad(gamma_m);
+     gamma_error = deg2rad(slewToAngle(demand_raw(2,k))) - deg2rad(gamma_m);
      if( abs(gamma_error) < angle_tolerance)
          demand_type(2) = 0;
      end
 
-     beta_error = deg2rad(elbowToAngle(demand_raw(3))) - deg2rad(beta_m);
+     beta_error = deg2rad(elbowToAngle(demand_raw(3,k))) - deg2rad(beta_m);
      if( abs(beta_error) < angle_tolerance)
          demand_type(3) = 0;
      end
@@ -153,57 +140,63 @@ while(i < N)
 %          demand_type(4) = 0;
 %      end
 
-     epsilon_error = jawToPercent(demand_raw(5)) - epsilon_m;
-     if( abs(epsilon_error) < percent_tolerance)
-         demand_type(5) = 0;
-     end
+%      epsilon_error = jawToPercent(demand_raw(5,k)) - epsilon_m;
+%      if( abs(epsilon_error) < percent_tolerance)
+%          demand_type(5) = 0;
+%      end
 
-     if (min(demand_type == zeros(1,5)) == 1 )
+    if (min(demand_type == zeros(1,5)) == 1 )
         % we've arrived, get the next waypoint.
         demand = [0 0 0 0 0];
-%         demand_type = [5 5 5 0 5];
+        demand_type = [5 5 5 0 0];
         k = k + 1;
 
         if (k>size(demand_raw,2))
             disp('Completed.')
             break;
         end
-%         disp('-----------------------------------------');
-%         disp([' Going to waypoint ', num2str(k)])
-%         disp(['alpha=', num2str(rad2deg(alpha(k))),... 
-%             ' gamma=', num2str(rad2deg(gamma(k))),... 
-%             ' beta=', num2str(rad2deg(beta(k))), ' ']);
-%         disp('-----------------------------------------');
+        disp('-----------------------------------------');
+        disp([' Going to waypoint ', num2str(k)])
+        disp(['alpha=', num2str(input(1,k)), ...
+           ' gamma=', num2str(input(2,k)),...
+           ' beta=', num2str(input(3,k)),' ']);%,...
+%            ' epsilon=', num2str(input(5,k)),' ']);
+        disp('-----------------------------------------');
 %         %pause(1)
 % 
-%          % check if any of the joints is already at its target value.
-% 
-%          alpha_error = alpha(k) - deg2rad(alpha_m);
-%          if( abs(alpha_error) < angle_tolerance)
-%              demand_type(1) = 0;
-%          end
-% 
-%          gamma_error = gamma(k) - deg2rad(gamma_m);
-%          if( abs(gamma_error) < angle_tolerance)
-%              demand_type(2) = 0;
-%          end
-% 
-%          beta_error = beta(k) - deg2rad(beta_m);
-%          if( abs(beta_error) < angle_tolerance)
-%              demand_type(3) = 0;
-%          end
-% 
-%         alpha_command = toDemand(angleToShoulder(rad2deg(alpha(k))));
-%         gamma_command = toDemand(angleToSlew(rad2deg(gamma(k))));
-%         beta_command = toDemand(angleToElbow(rad2deg(beta(k))));
-% 
-%         demand = [ alpha_command gamma_command beta_command 0 0];
-     end
-     tries = 0;
+         % check if any of the joints is already at its target value.
+
+         alpha_error = deg2rad(shoulderToAngle(demand_raw(1,k))) - deg2rad(alpha_m);
+         if( abs(alpha_error) < angle_tolerance)
+             demand_type(1) = 0;
+         end
+
+         gamma_error = deg2rad(slewToAngle(demand_raw(2,k))) - deg2rad(gamma_m);
+         if( abs(gamma_error) < angle_tolerance)
+             demand_type(2) = 0;
+         end
+
+         beta_error = deg2rad(elbowToAngle(demand_raw(3,k))) - deg2rad(beta_m);
+         if( abs(beta_error) < angle_tolerance)
+             demand_type(3) = 0;
+         end
+
+%          epsilon_error = jawToPercent(demand_raw(5,k)) - epsilon_m;
+%          if( abs(epsilon_error) < percent_tolerance)
+%              demand_type(5) = 0;
+      
+         
+         % get demand values for new waypoint
+         for m=1:5
+             demand(m) = toDemand(demand_raw(m,k));
+         end
+         disp(demand)
+    end
+    tries = 0;
    else
        disp('No reply from arm')
        tries = tries + 1;
-       if (tries > 50)
+       if (tries > 20)
            disp('Quitting.')
            break;
        end
