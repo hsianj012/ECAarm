@@ -232,8 +232,10 @@ end
 % make jawValue same for all waypoints
 input(5,:)=handles.jawVal*ones(1,numWP);
 
-demand_type = handles.demandType;
-[handles.rawData] = runArm(input, demand_type);
+% check that waypoint are valid
+input = makeWaypoint(input);
+input
+[handles.rawData] = runArm(input, handles.demandType);
 
 % update status to 'complete' on GUI
 set(handles.status, 'String', 'COMPLETE');
@@ -323,10 +325,9 @@ handles.cycles = 1:handles.length;
 plotA1 = fieldnames(handles.A1);
 % plotLegend = [];
 for iElement = 1:numel(plotA1)
-    figure(iElement)
-    hold on
     if handles.A1.(plotA1{iElement})
-        plot(handles.cycles,handles.A1.(plotA1{iElement}))
+        figure(iElement)
+        plot(handles.cycles,handles.(plotA1{iElement}))
         legend('shoulder','slew','elbow','wrist','jaw');
     end
 end
