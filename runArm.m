@@ -10,7 +10,7 @@ for j = 1:size(input,2)
     demand_raw(1,j) = angleToShoulder(input(1,j));
     demand_raw(2,j) = angleToSlew(input(2,j));
     demand_raw(3,j) = angleToElbow(input(3,j));
-%     demand_raw(5,j) = percentToJaw(input(5,j));
+    demand_raw(5,j) = percentToJaw(input(5,j));
 end
 
 %% Move arm along waypoints
@@ -94,24 +94,21 @@ while(i < N)
      gamma_m = slewToAngle(position(2,i));
      beta_m = elbowToAngle(position(3,i));
 %      delta_m = wristToAngle(position(4,i)); % To be written
-%      epsilon_m = jawToPercent(position(5,i));
+     epsilon_m = jawToPercent(position(5,i));
      
      % print out progress in command window
      disp(' ');
      disp(['      at: alpha=', num2str(alpha_m),...
            ' gamma=', num2str(gamma_m),...
-           ' beta=', num2str(beta_m)]);%,...
-%            ' epsilon=', num2str(epsilon_m)]);
+           ' beta=', num2str(beta_m),...
+           ' epsilon=', num2str(epsilon_m)]);
 %            ' delta=', num2str(delta_m),...
 %            ' epsilon=', num2str(epsilon_m)]);
-%      disp(['going to: alpha=', num2str(shoulderToAngle(demand_raw(1,k))), ...
-%            ' gamma=', num2str(slewToAngle(demand_raw(2,k))),...
-%            ' beta=', num2str(elbowToAngle(demand_raw(3,k))),...
-%            ' epsilon=', num2str(jawToPercent(demand_raw(5,k))),' ']);
+
      disp(['going to: alpha=', num2str(input(1,k)), ...
            ' gamma=', num2str(input(2,k)),...
-           ' beta=', num2str(input(3,k)),' ']);%,...
-%            ' epsilon=', num2str(input(5,k)),' ']);
+           ' beta=', num2str(input(3,k)),...
+           ' epsilon=', num2str(input(5,k)),' ']);
 %            ' delta=', num2str(wristToAngle(demand_raw(4))),...
 %            ' epsilon=', num2str(jawToPercent(demand_raw(5))),' ']);
 
@@ -140,12 +137,12 @@ while(i < N)
 %          demand_type(4) = 0;
 %      end
 
-%      epsilon_error = jawToPercent(demand_raw(5,k)) - epsilon_m;
-%      if( abs(epsilon_error) < percent_tolerance)
-%          demand_type(5) = 0;
-%      end
+     epsilon_error = jawToPercent(demand_raw(5,k)) - epsilon_m;
+     if( abs(epsilon_error) < percent_tolerance)
+         demand_type(5) = 0;
+     end
 
-    if (min(demand_type == zeros(1,5)) == 1 )
+     if (min(demand_type == zeros(1,5)) == 1 )
         % we've arrived, get the next waypoint.
         demand = [0 0 0 0 0];
         demand_type = [5 5 5 0 0];
@@ -159,8 +156,8 @@ while(i < N)
         disp([' Going to waypoint ', num2str(k)])
         disp(['alpha=', num2str(input(1,k)), ...
            ' gamma=', num2str(input(2,k)),...
-           ' beta=', num2str(input(3,k)),' ']);%,...
-%            ' epsilon=', num2str(input(5,k)),' ']);
+           ' beta=', num2str(input(3,k)),...
+           ' epsilon=', num2str(input(5,k)),' ']);
         disp('-----------------------------------------');
 %         %pause(1)
 % 
@@ -181,18 +178,18 @@ while(i < N)
              demand_type(3) = 0;
          end
 
-%          epsilon_error = jawToPercent(demand_raw(5,k)) - epsilon_m;
-%          if( abs(epsilon_error) < percent_tolerance)
-%              demand_type(5) = 0;
-      
+         epsilon_error = jawToPercent(demand_raw(5,k)) - epsilon_m;
+         if( abs(epsilon_error) < percent_tolerance)
+             demand_type(5) = 0;
+         end
          
          % get demand values for new waypoint
          for m=1:5
              demand(m) = toDemand(demand_raw(m,k));
          end
-         disp(demand)
-    end
-    tries = 0;
+%          disp(demand)
+     end
+     tries = 0;
    else
        disp('No reply from arm')
        tries = tries + 1;
