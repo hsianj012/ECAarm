@@ -4,7 +4,7 @@ function [ newWaypoints ] = makeWaypoint( waypoints )
 %   intermediate waypoints as needed.
 
 % Range limits of each joint
-max = [90 120 130 2000 100]'; % [shoulder, slew, elbow, wrist, jaw]
+max = [90 120 130 2000 2000]'; % [shoulder, slew, elbow, wrist, jaw]
 
 % initial position of arm
 initPos = getInitPosition;
