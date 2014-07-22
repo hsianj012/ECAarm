@@ -22,7 +22,7 @@ function varargout = ArmControlGUI(varargin)
 
 % Edit the above text to modify the response to help ArmControlGUI
 
-% Last Modified by GUIDE v2.5 16-Jul-2014 15:49:13
+% Last Modified by GUIDE v2.5 22-Jul-2014 12:08:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -59,19 +59,16 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-% % Initiate axes plot handles - necessary so that colors are consistent
-% for both plots
+% Initiate axes plot handles
 handles.A1.posAng = 0;
 handles.A1.posPt = 0;
 handles.A1.speed = 0;
 handles.A1.current = 0;
-handles.A2.posAng = 0;
-handles.A2.posPt = 0;
-handles.A2.speed = 0;
-handles.A2.current = 0;
 
-set(handles.inputTypePanel, 'SelectedObject', handles.anglesBtn);
+% Initial selection for button panels
+handles.jawVal = 10;
 handles.inputType = 'angles';
+
 guidata(hObject, handles);
 % initialize_gui(hObject, handles, false);
 % UIWAIT makes ArmControlGUI wait for user response (see UIRESUME)
@@ -95,16 +92,17 @@ function inputTypePanel_SelectionChangeFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % update text on GUI based on type of input user wants to use
-if (hObject == handles.anglesBtn)
-    set(handles.text1, 'String', 'Shoulder:');
-    set(handles.text2, 'String', 'Slew:');
-    set(handles.text3, 'String', 'Elbow:');
-    handles.inputType = 'angles';
-else
-    set(handles.text1, 'String', 'X:');
-    set(handles.text2, 'String', 'Y:');
-    set(handles.text3, 'String', 'Z:');
-    handles.inputType = 'point';
+switch get(eventdata.NewValue,'Tag')
+    case 'anglesBtn'
+        set(handles.text1, 'String', 'Shoulder:');
+        set(handles.text2, 'String', 'Slew:');
+        set(handles.text3, 'String', 'Elbow:');
+        handles.inputType = 'angles';
+    case 'pointBtn'
+        set(handles.text1, 'String', 'X:');
+        set(handles.text2, 'String', 'Y:');
+        set(handles.text3, 'String', 'Z:');
+        handles.inputType = 'point';
 end
 guidata(hObject, handles);
 
@@ -137,8 +135,6 @@ function textInput1_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
 
 function textInput2_Callback(hObject, eventdata, handles)
 % hObject    handle to textInput2 (see GCBO)
@@ -200,36 +196,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on slider movement.
-function jawSlider_Callback(hObject, eventdata, handles)
-% hObject    handle to jawSlider (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-% Store jaw open percentage
-jawValue = get(hObject,'Value');
-% handles.input(5) = jawValue;
-
-% display current position of slider on GUI
-set(handles.jawVal,'String',num2str(jawValue));
-guidata(hObject, handles);
-
-% --- Executes during object creation, after setting all properties.
-function jawSlider_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to jawSlider (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
-
 % --- Executes on button press in runBtn.
 function runBtn_Callback(hObject, eventdata, handles)
 % hObject    handle to runBtn (see GCBO)
@@ -252,17 +218,20 @@ if get(handles.runBtn,'Value')
     set(handles.status,'BackgroundColor',get(handles.statusBG,'BackgroundColor'));
 end
 
-% run function
-%%%
+%% run function
+% get input values
 input = handles.input;
+% get number of waypoints
+numWP = size(input,2);
+% if inputType == point, convert point to angles
 if strcmp(handles.inputType,'point')
-    for i = 1:size(input,2)
+    for i = 1:numWP
         [input(1,i),input(2,i),input(3,i)] = pointToAngle(handles.input(1,i),handles.input(2,i),handles.input(3,i));
     end
 end
-%%%
-disp(handles.input)
-disp(input)
+% make jawValue same for all waypoints
+input(5,:)=handles.jawVal*ones(1,numWP);
+
 demand_type = handles.demandType;
 [handles.rawData] = runArm(input, demand_type);
 
@@ -321,50 +290,6 @@ else
 end
 guidata(hObject, handles);
 
-% --- Executes on button press in currentA2.
-function currentA2_Callback(hObject, eventdata, handles)
-% hObject    handle to currentA2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of currentA2
-on = get(hObject,'Value');
-if on
-    handles.A2.current = on;
-else
-    handles.A2.current = 0;
-end
-guidata(hObject, handles);
-
-% --- Executes on button press in posPtA2.
-function posPtA2_Callback(hObject, eventdata, handles)
-% hObject    handle to posPtA2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of posPtA2
-on = get(hObject,'Value');
-if on
-    handles.A2.posPt = on;
-else
-    handles.A2.posPt = 0;
-end
-guidata(hObject, handles);
-
-% --- Executes on button press in posAngA2.
-function posAngA2_Callback(hObject, eventdata, handles)
-% hObject    handle to posAngA2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of posAngA2
-on = get(hObject,'Value');
-if on
-    handles.A2.posAng = on;
-else
-    handles.A2.posAng = 0;
-end
-guidata(hObject, handles);
 
 % --- Executes on button press in speedA1.
 function speedA1_Callback(hObject, eventdata, handles)
@@ -381,58 +306,66 @@ else
 end
 guidata(hObject, handles);
 
-% --- Executes on button press in speedA2.
-function speedA2_Callback(hObject, eventdata, handles)
-% hObject    handle to speedA2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of speedA2
-on = get(hObject,'Value');
-if on
-    handles.A2.speed = on;
-else
-    handles.A2.speed = 0;
-end
-guidata(hObject, handles);
 
 % --- Executes on button press in plotBt.
 function plotBt_Callback(hObject, eventdata, handles)
 % hObject    handle to plotBt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-f = figure()
 [handles.posAng, handles.posPt, handles.speed, handles.current, handles.length]...
     = dataForPlot(handles.rawData);
 handles.cycles = 1:handles.length;
 
-colors = ['r','g','b','m'];
-
+% colors = ['r','g','b','m'];
 
 % checks/plots desired plots on axes 1(left)
-axes(handles.axes1);
-cla
-hold on
+% hold on
 plotA1 = fieldnames(handles.A1);
-plotLegend = [];
+% plotLegend = [];
 for iElement = 1:numel(plotA1)
+    figure(iElement)
+    hold on
     if handles.A1.(plotA1{iElement})
-        plot(handles.cycles,handles.(plotA1{iElement}),colors(iElement))
-        plotLegend = [plotLegend,plotA1(iElement)];
+        plot(handles.cycles,handles.A1.(plotA1{iElement}))
+        legend('shoulder','slew','elbow','wrist','jaw');
     end
 end
-legend(plotLegend)
+% 
+% % checks/plots desired plots on axes 2(right)
+% axes(handles.axes2);
+% cla
+% hold on
+% plotA2 = fieldnames(handles.A2);
+% plotLegend = [];
+% for iElement = 1:numel(plotA2)
+%     if handles.A2.(plotA2{iElement})
+%         plot(handles.cycles,handles.(plotA2{iElement}),colors(iElement))
+%         plotLegend = [plotLegend,plotA2(iElement)];
+%     end
+% end
+% legend(plotLegend)
 
-% checks/plots desired plots on axes 2(right)
-axes(handles.axes2);
-cla
-hold on
-plotA2 = fieldnames(handles.A2);
-plotLegend = [];
-for iElement = 1:numel(plotA2)
-    if handles.A2.(plotA2{iElement})
-        plot(handles.cycles,handles.(plotA2{iElement}),colors(iElement))
-        plotLegend = [plotLegend,plotA2(iElement)];
-    end
+
+% --- Executes on button press in resetBt.
+function resetBt_Callback(hObject, eventdata, handles)
+% hObject    handle to resetBt (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% --- Executes when selected object is changed in jawPosition.
+function jawPosition_SelectionChangeFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in jawPosition 
+% eventdata  structure with the following fields (see UIBUTTONGROUP)
+%	EventName: string 'SelectionChanged' (read only)
+%	OldValue: handle of the previously selected object or empty if none was selected
+%	NewValue: handle of the currently selected object
+% handles    structure with handles and user data (see GUIDATA)
+% --- Executes when selected object changed in jawPanel.
+
+switch get(eventdata.NewValue,'Tag')
+    case 'jawOpen'
+        handles.jawVal = 100;
+    case 'jawClose'
+        handles.jawVal = 10;
 end
-legend(plotLegend)
+guidata(hObject, handles);

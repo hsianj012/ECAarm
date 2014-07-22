@@ -16,7 +16,7 @@ close all
 % alpha = deg2rad([10,20,30]); % shoulder
 % gamma = deg2rad([10, 20, 30, 40, 30, 20, 10]); % Slew
 % beta = deg2rad([10, 20, 30, 40, 30, 20, 10]); % Elbow
-epsilon = [50 40 30 20 10];
+epsilon = [20 30];
 % % figure()
 % % plot(rad2deg(alpha), '-r.')
 % % hold on
@@ -63,7 +63,7 @@ current_limit = 4095*ones(1,5);
 i = 1;
 positioning_tolerance = 300;
 angle_tolerance = deg2rad(0.5);
-jaw_tolerance = 5;
+jaw_tolerance = 3;
 k = 1;
 tries = 0;
 
