@@ -1,4 +1,4 @@
-function [posAng, posPt, speed, current, length] = dataForPlot(data)
+function [posAng, posPt, speed, current, temperature, length] = dataForPlot(data)
 %% Plot of motor positions and currents.
 if (~isempty(data()))
      M = size(data,2);
@@ -8,12 +8,16 @@ if (~isempty(data()))
      speed = zeros(5,M);
      posAng = zeros(4,M);
      posPt = zeros(3,M);
+     temperature = zeros(5,M);
      
+     % offet/width based on position in packet and bytes for each motor
      offset_position = 6;
      offset_speed = 8;
      offset_current = 10;
+     offset_temp = 12;
      width = 9;
 
+     % Separate raw data
      for i=1:5
        for j =1:M
          % i 
@@ -23,6 +27,9 @@ if (~isempty(data()))
               256*data(offset_current + (i-1)*width + 1, j);
          speed(i,j) = data(offset_speed + (i-1)*width,j) + ...
               256*data(offset_speed + (i-1)*width + 1, j);
+         % convert temperature from 8-bit to Celsius (eq. from COMM manual)
+         temp8bit = data(offset_temp + (i-1)*width,j);
+         temperature(i,j) = ((temp8bit / 255) * 3.3) / 0.0066101694915254237288135593220339;
        end
      end
 
