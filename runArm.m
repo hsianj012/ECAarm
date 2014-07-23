@@ -34,8 +34,8 @@ position = zeros(5, N);
 % elbow = beta = motor 3
 
 offset_position = 6;
-offset_speed = 8;
-offset_current = 10;
+% offset_speed = 8;
+% offset_current = 10;
 width = 9;
 
 % -- Limits of motors --
@@ -46,7 +46,7 @@ current_limit = 4095*ones(1,5);
 
 
 i = 1;
-positioning_tolerance = 300;
+% positioning_tolerance = 300;
 angle_tolerance = deg2rad(0.5);
 percent_tolerance = 4;
 % angle_tolerance = 0.5;
