@@ -234,8 +234,8 @@ input(5,:)=handles.jawVal*ones(1,numWP);
 
 % check that waypoint are valid
 input = makeWaypoint(input);
-input
 [handles.rawData] = runArm(input, handles.demandType);
+assignin('base', 'rawData', handles.rawData)
 
 % update status to 'complete' on GUI
 set(handles.status, 'String', 'COMPLETE');
@@ -332,6 +332,7 @@ function plotBt_Callback(hObject, eventdata, handles)
 [handles.posAng, handles.posPt, handles.speed, handles.current, handles.temp handles.length]...
     = dataForPlot(handles.rawData);
 handles.cycles = 1:handles.length;
+assignin('base', 'GUIcycles', handles.cycles)
 
 % checks/plots desired plots in separate figures
 plotA1 = fieldnames(handles.A1);
@@ -341,6 +342,7 @@ for iElement = 1:numel(plotA1)
         switch plotA1{iElement}
             case 'posPt'
                 points = handles.(plotA1{iElement});
+                assignin('base', 'GUIxyz', handles.(plotA1{iElement}))
                 hold on
                 view(3)
                 plot3(points(1,:),points(2,:),points(3,:))
@@ -354,27 +356,31 @@ for iElement = 1:numel(plotA1)
                 axes = plotyy(handles.cycles,handles.(plotA1{iElement})(1:3,:),handles.cycles,handles.(plotA1{iElement})(4,:));
                 legend('shoulder','slew','elbow','jaw');
                 xlabel('Cycle')
-                ylabel(axes(1),'Angle (^\circ)')
+                ylabel(axes(1),'Angle (\circ)')
                 ylabel(axes(2),'Open %')
                 title('Joint Positions')
+                assignin('base', 'GUIangles', handles.(plotA1{iElement}))
             case 'speed'
                 plot(handles.cycles,handles.(plotA1{iElement}))
                 legend('shoulder','slew','elbow','wrist','jaw');
                 xlabel('Cycle')
                 ylabel('Speed (RPM)')
                 title('Motor Speeds')
+                assignin('base', 'GUIspeed', handles.(plotA1{iElement}))
             case 'current'
                 plot(handles.cycles,handles.(plotA1{iElement}))
                 legend('shoulder','slew','elbow','wrist','jaw');
                 xlabel('Cycle')
                 ylabel('Current')
                 title('Motor Currents')
+                assignin('base', 'GUIcurrent', handles.(plotA1{iElement}))
             case 'temp'
                 plot(handles.cycles,handles.(plotA1{iElement}))
                 legend('shoulder','slew','elbow','wrist','jaw');
                 xlabel('Cycle')
-                ylabel('Temperature (^\circC')
+                ylabel('Temperature (\circC)')
                 title('Motor Temperature')
+                assignin('base', 'GUItemp', handles.(plotA1{iElement}))
         end
     end
 end
