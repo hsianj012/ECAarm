@@ -22,7 +22,7 @@ function varargout = ArmControlGUI(varargin)
 
 % Edit the above text to modify the response to help ArmControlGUI
 
-% Last Modified by GUIDE v2.5 22-Jul-2014 12:08:18
+% Last Modified by GUIDE v2.5 23-Jul-2014 11:32:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -308,43 +308,76 @@ else
 end
 guidata(hObject, handles);
 
+% --- Executes on button press in tempA1.
+function tempA1_Callback(hObject, eventdata, handles)
+% hObject    handle to tempA1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of tempA1
+on = get(hObject,'Value');
+if on
+    handles.A1.temp = on;
+else
+    handles.A1.temp = 0;
+end
+guidata(hObject, handles);
+
 
 % --- Executes on button press in plotBt.
 function plotBt_Callback(hObject, eventdata, handles)
 % hObject    handle to plotBt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[handles.posAng, handles.posPt, handles.speed, handles.current, handles.length]...
+[handles.posAng, handles.posPt, handles.speed, handles.current, handles.temp handles.length]...
     = dataForPlot(handles.rawData);
 handles.cycles = 1:handles.length;
 
-% colors = ['r','g','b','m'];
-
-% checks/plots desired plots on axes 1(left)
-% hold on
+% checks/plots desired plots in separate figures
 plotA1 = fieldnames(handles.A1);
-% plotLegend = [];
 for iElement = 1:numel(plotA1)
     if handles.A1.(plotA1{iElement})
-        figure(iElement)
-        plot(handles.cycles,handles.(plotA1{iElement}))
-        legend('shoulder','slew','elbow','wrist','jaw');
+        figure(iElement)%-- 7/23/2014 9:31 AM --%
+        switch plotA1{iElement}
+            case 'posPt'
+                points = handles.(plotA1{iElement});
+                hold on
+                view(3)
+                plot3(points(1,:),points(2,:),points(3,:))
+                plot3(points(1,1),points(2,1),points(3,1),'go')
+                plot3(points(1,end),points(2,end),points(3,end),'rs')
+                xlabel('X (in.)')
+                ylabel('Y (in.)')
+                zlabel('Z (in.)')
+                title('Cartesian Position of End-effector')
+            case 'posAng'
+                axes = plotyy(handles.cycles,handles.(plotA1{iElement})(1:3,:),handles.cycles,handles.(plotA1{iElement})(4,:));
+                legend('shoulder','slew','elbow','jaw');
+                xlabel('Cycle')
+                ylabel(axes(1),'Angle (^\circ)')
+                ylabel(axes(2),'Open %')
+                title('Joint Positions')
+            case 'speed'
+                plot(handles.cycles,handles.(plotA1{iElement}))
+                legend('shoulder','slew','elbow','wrist','jaw');
+                xlabel('Cycle')
+                ylabel('Speed (RPM)')
+                title('Motor Speeds')
+            case 'current'
+                plot(handles.cycles,handles.(plotA1{iElement}))
+                legend('shoulder','slew','elbow','wrist','jaw');
+                xlabel('Cycle')
+                ylabel('Current')
+                title('Motor Currents')
+            case 'temp'
+                plot(handles.cycles,handles.(plotA1{iElement}))
+                legend('shoulder','slew','elbow','wrist','jaw');
+                xlabel('Cycle')
+                ylabel('Temperature (^\circC')
+                title('Motor Temperature')
+        end
     end
 end
-% 
-% % checks/plots desired plots on axes 2(right)
-% axes(handles.axes2);
-% cla
-% hold on
-% plotA2 = fieldnames(handles.A2);
-% plotLegend = [];
-% for iElement = 1:numel(plotA2)
-%     if handles.A2.(plotA2{iElement})
-%         plot(handles.cycles,handles.(plotA2{iElement}),colors(iElement))
-%         plotLegend = [plotLegend,plotA2(iElement)];
-%     end
-% end
-% legend(plotLegend)
 
 
 % --- Executes on button press in resetBt.
@@ -370,3 +403,5 @@ switch get(eventdata.NewValue,'Tag')
         handles.jawVal = 10;
 end
 guidata(hObject, handles);
+
+
